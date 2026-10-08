@@ -433,7 +433,6 @@ const DESKTOP_ITEMS = [
   {id:'ie',name:'Internet Explorer',icon:'🌍',type:'app',locked:true},
   {id:'notepad',name:'Notepad',icon:'📝',type:'app'},
   {id:'paint',name:'MS Paint',icon:'🎨',type:'app',locked:true},
-  {id:'mediaplr',name:'Windows Media Player',icon:'🎬',type:'app',locked:true},
   {id:'messenger',name:'MSN Messenger',icon:'💬',type:'app',locked:true},
 ];
 
@@ -1233,21 +1232,6 @@ function openApp(item){
           </div>
         </div>`,{icon:'🎨',width:420,menubar:'<span>File</span><span>Edit</span><span>View</span><span>Image</span><span>Colors</span><span>Help</span>'});
       initPaint();
-      break;
-    case 'mediaplr':
-      makeXPWindow('mediaplr','Windows Media Player',`
-        <div style="background:#1a1a2e;padding:20px;text-align:center;min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:36px;animation:skull-pulse 2s infinite">🎵</div>
-          <p style="color:#fff;margin-top:12px;font-weight:bold">Now Playing:</p>
-          <p style="color:#aaa;font-size:13px">"Soundtrack Cinta Kita"</p>
-          <p style="color:#667eea;font-size:11px;margin-top:4px">by ${CONFIG.namaKamu} ft. ${CONFIG.namaDia}</p>
-          <div style="width:80%;height:4px;background:#333;border-radius:2px;margin:16px 0;overflow:hidden">
-            <div style="width:45%;height:100%;background:linear-gradient(90deg,#667eea,#764ba2);animation:progress-glow 2s infinite"></div>
-          </div>
-          <div style="display:flex;gap:16px;color:#fff;font-size:18px">
-            <span style="cursor:pointer">⏮</span><span style="cursor:pointer;font-size:24px">▶️</span><span style="cursor:pointer">⏭</span>
-          </div>
-        </div>`,{icon:'🎬',width:380});
       break;
     case 'messenger':
       makeXPWindow('messenger','MSN Messenger',`
