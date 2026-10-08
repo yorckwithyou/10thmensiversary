@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⚠ SYSTEM COMPROMISED ⚠</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Nunito:wght@400;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;font-family:'Segoe UI','Tahoma',sans-serif;background:#000;user-select:none}
+:root{
+  --xp-title-active:linear-gradient(180deg,#0058e6 0%,#3a8cf4 9%,#1667d9 18%,#0553cc 27%,#0553cc 54%,#0f5cd5 63%,#1a6ee5 72%,#2380f5 81%,#78b4fa 100%);
+  --green:#39ff14;--red:#ff2a4d;--amber:#ffaa00;
+}
+.term{font-family:'VT323','Courier New',monospace}
+
+/* SCANLINE & EFFECTS */
+.scan::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.15) 0 1px,transparent 1px 3px);z-index:9999}
+.glow-red{text-shadow:0 0 8px #ff2a4d,0 0 20px #ff2a4d,0 0 40px #ff2a4d}
+.glow-green{text-shadow:0 0 8px #39ff14,0 0 20px #39ff14}
+@keyframes glitch{
+  0%,100%{transform:translate(0);filter:none}
+  20%{transform:translate(-3px,2px);filter:hue-rotate(90deg)}
+  40%{transform:translate(3px,-2px) skewX(2deg);filter:hue-rotate(-90deg)}
+  60%{transform:translate(-2px,-1px);filter:hue-rotate(180deg)}
+  80%{transform:translate(2px,2px) skewX(-1deg)}
+}
+.glitch{animation:glitch .3s linear infinite}
+@keyframes shake{0%,100%{translate:0 0}25%{translate:-8px 0}75%{translate:8px 0}}
+.shake{animation:shake .3s 2}
+@keyframes blink{50%{opacity:0}}
+@keyframes pop{from{scale:.92;opacity:0}to{scale:1;opacity:1}}
+.pop{animation:pop .2s ease-out}
+@keyframes pulse-border{0%,100%{border-color:#ff2a4d}50%{border-color:#ff6b81}}
+.pulse-border{animation:pulse-border 1.5s ease-in-out infinite}
+@keyframes progress-glow{0%{box-shadow:0 0 5px #39ff14}50%{box-shadow:0 0 20px #39ff14,0 0 40px #39ff14}100%{box-shadow:0 0 5px #39ff14}}
+@keyframes skull-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes floatUp{to{transform:translateY(-110vh) rotate(25deg);opacity:0}}
+.heart{position:fixed;bottom:-40px;pointer-events:none;animation:floatUp linear forwards;z-index:9998}
+@keyframes confetti-fall{0%{transform:translateY(-10vh) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+.confetti{position:fixed;top:-20px;pointer-events:none;z-index:9997;animation:confetti-fall linear forwards}
+
+/* STAGE 1 */
+#stage1{position:fixed;inset:0;background:#000;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px}
+#matrix{position:absolute;inset:0;width:100%;height:100%}
+#hackbox{position:relative;z-index:10;width:100%;max-width:680px;max-height:96vh;overflow:auto;background:rgba(0,0,0,.92);border:2px solid var(--red);padding:24px 28px;box-shadow:0 0 30px rgba(255,42,77,.3),inset 0 0 60px rgba(255,42,77,.05)}
+.skull-container{text-align:center;margin-bottom:12px}
+.skull-ascii{font-family:'VT323',monospace;font-size:12px;line-height:1.1;color:#ff2a4d;white-space:pre;display:inline-block;animation:skull-pulse 2s ease-in-out infinite}
+.warning-banner{background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(255,42,77,.1) 10px,rgba(255,42,77,.1) 20px);border:1px solid var(--red);padding:8px 16px;margin-bottom:16px;text-align:center}
+.hack-input{width:100%;background:#0a0a0a;border:1px solid var(--green);color:var(--green);padding:10px 14px;font-family:'VT323',monospace;font-size:24px;letter-spacing:4px;outline:none;box-shadow:0 0 10px rgba(57,255,20,.1)}
+.hack-input:focus{border-color:var(--amber);box-shadow:0 0 20px rgba(255,170,0,.2)}
+.hack-input::placeholder{color:rgba(57,255,20,.3)}
+.hack-btn{background:transparent;border:1px solid var(--green);color:var(--green);padding:10px 24px;font-family:'VT323',monospace;font-size:20px;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:2px}
+.hack-btn:hover{background:var(--green);color:#000;box-shadow:0 0 20px rgba(57,255,20,.4)}
+.attempt-counter{position:absolute;top:8px;right:12px;font-family:'VT323',monospace;font-size:14px;color:var(--red)}
+.ip-faker{position:fixed;top:10px;left:10px;z-index:11;font-family:'VT323',monospace;font-size:13px;color:rgba(57,255,20,.5);pointer-events:none}
+
+/* STAGE 2 */
+#stage2{position:fixed;inset:0;display:none;overflow:hidden}
+.xp-wallpaper{position:absolute;inset:0;background:linear-gradient(180deg,#245edb 0%,#3a8cf4 20%,#5ca8f8 40%,#78c878 55%,#4daf3a 65%,#3a9a2a 75%,#2d8c1e 100%)}
+.xp-wallpaper::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.35))}
+#icons{position:absolute;top:8px;left:8px;display:flex;flex-direction:column;flex-wrap:wrap;gap:4px;height:calc(100% - 50px);align-content:flex-start;z-index:5}
+.xp-icon{position:relative;width:80px;padding:6px 4px;border:1px solid transparent;border-radius:3px;text-align:center;cursor:pointer;color:#fff;transition:all .15s}
+.xp-icon:hover{background:rgba(80,130,220,.4);border-color:rgba(120,170,255,.5)}
+.xp-icon.selected{background:rgba(80,130,220,.6);border-color:rgba(120,170,255,.7)}
+.xp-icon .icon-img{width:40px;height:40px;margin:0 auto 2px;display:block}
+.xp-icon .icon-label{font-size:11px;line-height:1.2;color:#fff;text-shadow:1px 1px 2px rgba(0,0,0,.8);word-break:break-word;font-family:'Tahoma',sans-serif}
+.xp-icon.locked .icon-img{filter:grayscale(.8) brightness(.6)}
+.xp-icon.locked .icon-label{color:rgba(255,255,255,.5)}
+.xp-icon.locked::after{content:"🔒";position:absolute;top:2px;right:2px;font-size:12px}
+
+/* TASKBAR */
+.xp-taskbar{position:absolute;bottom:0;left:0;right:0;height:36px;z-index:50;background:linear-gradient(180deg,#1f5fc9 0%,#2568d0 4%,#2264ca 8%,#245edb 50%,#1b4eb5 100%);border-top:1px solid #4080e0;display:flex;align-items:center;box-shadow:0 -1px 4px rgba(0,0,0,.3)}
+.xp-start-btn{height:30px;padding:0 12px 0 6px;margin-left:2px;background:linear-gradient(180deg,#3c9a30 0%,#3c9a30 2%,#49b03e 8%,#3c9a30 50%,#267a1a 100%);border:none;border-radius:0 8px 8px 0;color:#fff;font-weight:bold;font-size:12px;font-family:'Tahoma',sans-serif;cursor:pointer;display:flex;align-items:center;gap:4px;text-shadow:0 1px 1px rgba(0,0,0,.3);letter-spacing:.5px}
+.xp-start-btn:hover{filter:brightness(1.1)}
+.xp-start-btn .win-logo{width:20px;height:20px}
+.xp-tray{margin-left:auto;display:flex;align-items:center;gap:6px;padding:0 10px;height:100%;background:linear-gradient(180deg,#0f6bd4 0%,#1a6ee5 50%,#1565d8 100%);border-left:1px solid rgba(255,255,255,.2)}
+.xp-tray .tray-time{font-size:11px;color:#fff;font-family:'Tahoma',sans-serif}
+#taskButtons{display:flex;gap:2px;flex:1;overflow:hidden;padding:0 4px}
+.task-btn{height:26px;max-width:160px;padding:0 8px;background:linear-gradient(180deg,#3d7fc9 0%,#2c6abd 50%,#2460b5 100%);border:1px solid rgba(0,0,0,.3);border-radius:2px;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'Tahoma',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-btn:hover{filter:brightness(1.15)}
+.task-btn.active{background:linear-gradient(180deg,#e0e8f6 0%,#c8d4ec 50%,#b8c8e0 100%);color:#000}
+
+/* WINDOW */
+.xp-window{position:absolute;box-shadow:2px 2px 10px rgba(0,0,0,.4);display:flex;flex-direction:column;z-index:10;border:2px solid #0054e3;border-radius:8px 8px 0 0;overflow:hidden}
+.xp-titlebar{background:var(--xp-title-active);height:28px;display:flex;align-items:center;padding:0 4px 0 6px;cursor:move;touch-action:none;flex-shrink:0;border-radius:6px 6px 0 0}
+.xp-titlebar .title-text{flex:1;color:#fff;font-size:12px;font-weight:bold;font-family:'Tahoma',sans-serif;text-shadow:1px 1px 2px rgba(0,0,40,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:4px}
+.xp-titlebar .title-icon{width:16px;height:16px;margin-right:2px;flex-shrink:0;font-size:13px;line-height:16px}
+.xp-win-btns{display:flex;gap:2px;flex-shrink:0}
+.xp-win-btns button{width:22px;height:22px;border:none;border-radius:3px;font-size:11px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Tahoma',sans-serif;color:#fff}
+.xp-btn-minimize,.xp-btn-maximize{background:linear-gradient(180deg,#3b87e0 0%,#1e5fc4 100%)}
+.xp-btn-close{background:linear-gradient(180deg,#e08356 0%,#c7583a 50%,#b53a20 100%)}
+.xp-btn-close:hover{background:linear-gradient(180deg,#f0a070 0%,#dd6644 50%,#cc4422 100%)}
+.xp-menubar{background:linear-gradient(180deg,#f5f5f5 0%,#e8e8e8 100%);border-bottom:1px solid #aaa;height:22px;display:flex;align-items:center;padding:0 4px;font-size:11px;color:#333;font-family:'Tahoma',sans-serif;flex-shrink:0}
+.xp-menubar span{padding:2px 6px;cursor:default}
+.xp-menubar span:hover{background:#d0e0f8}
+.xp-win-body{background:#fff;flex:1;min-height:0;overflow:auto;font-family:'Tahoma',sans-serif;font-size:12px;color:#333;position:relative}
+.xp-statusbar{background:#ece9d8;border-top:1px solid #aaa;height:20px;display:flex;align-items:center;padding:0 8px;font-size:11px;color:#555;flex-shrink:0}
+
+/* CHALLENGES */
+.challenge-container{padding:16px;min-height:200px;position:relative}
+.hack-terminal{background:#0a0a0a;color:var(--green);font-family:'VT323',monospace;padding:16px;border:1px solid #333;min-height:250px;font-size:16px;line-height:1.5}
+.hack-progress{width:100%;height:20px;background:#111;border:1px solid var(--green);margin:8px 0;position:relative;overflow:hidden}
+.hack-progress-fill{height:100%;background:linear-gradient(90deg,#004400,var(--green));transition:width .5s;box-shadow:0 0 10px var(--green)}
+.hack-progress::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 8px,rgba(0,0,0,.3) 8px,rgba(0,0,0,.3) 10px)}
+.binary-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:.1;font-family:'VT323',monospace;color:var(--green);font-size:14px;line-height:1;word-break:break-all}
+.memory-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:360px;margin:12px auto}
+.memory-card{aspect-ratio:1;background:#111;border:2px solid #333;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;border-radius:4px;transition:all .3s}
+.memory-card:hover{border-color:var(--amber)}
+.memory-card.flipped{background:#002200;border-color:var(--green)}
+.memory-card.matched{background:#002200;border-color:var(--green);opacity:.7}
+.wire{display:flex;align-items:center;gap:8px;margin:6px 0;padding:6px;background:#111;border:1px solid #333;border-radius:4px;cursor:pointer;transition:all .2s}
+.wire:hover{border-color:var(--amber)}
+.wire.connected{border-color:var(--green);background:#002200}
+
+/* START MENU */
+#startMenu{display:none;position:absolute;bottom:36px;left:0;z-index:100;width:380px;background:#d6dff7;border:2px solid #0054e3;border-radius:8px 8px 0 0;box-shadow:4px 4px 10px rgba(0,0,0,.4);overflow:hidden}
+#startMenu .start-header{background:linear-gradient(180deg,#1f6cc9 0%,#245edb 100%);padding:8px 10px;display:flex;align-items:center;gap:10px}
+#startMenu .user-avatar{width:42px;height:42px;border-radius:6px;border:2px solid #fff;background:#b0c4de;display:flex;align-items:center;justify-content:center;font-size:24px}
+#startMenu .user-name{color:#fff;font-weight:bold;font-size:13px;font-family:'Tahoma',sans-serif;text-shadow:1px 1px 2px rgba(0,0,0,.4)}
+#startMenu .start-body{display:flex;min-height:280px}
+#startMenu .start-left{flex:1;background:#fff;padding:6px}
+#startMenu .start-right{width:160px;background:#d0dff2;padding:6px;border-left:1px solid #a0b8d8}
+.start-item{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:3px;cursor:pointer;font-size:12px;font-family:'Tahoma',sans-serif;color:#333}
+.start-item:hover{background:#2b72e5;color:#fff}
+.start-item .si-icon{font-size:20px;width:28px;text-align:center}
+.start-item.locked{opacity:.5;pointer-events:none}
+#startMenu .start-footer{background:linear-gradient(180deg,#3a8cf4 0%,#1f5fc9 100%);padding:6px 10px;display:flex;justify-content:flex-end;gap:8px}
+.start-footer-btn{color:#fff;font-size:11px;font-family:'Tahoma',sans-serif;cursor:pointer;display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:3px;background:transparent;border:none}
+.start-footer-btn:hover{background:rgba(255,255,255,.2)}
+.start-separator{border:none;border-top:1px solid #ddd;margin:4px 0}
+
+/* NOTIFICATION */
+.xp-notification{position:fixed;bottom:44px;right:8px;z-index:200;background:#ffffe1;border:1px solid #000;box-shadow:2px 2px 6px rgba(0,0,0,.3);max-width:300px;font-family:'Tahoma',sans-serif;font-size:11px;animation:pop .2s ease-out}
+.xp-notification .notif-header{background:#0054e3;color:#fff;padding:2px 6px;font-size:11px;font-weight:bold;display:flex;justify-content:space-between;align-items:center}
+.xp-notification .notif-body{padding:8px;display:flex;gap:8px;align-items:flex-start}
+.xp-notification .notif-icon{font-size:24px;flex-shrink:0}
+
+/* BSOD */
+#bsod{display:none;position:fixed;inset:0;z-index:10000;background:#0000aa;color:#fff;padding:40px;font-family:'Courier New',monospace;font-size:16px;overflow:auto}
+
+/* ERROR DIALOG */
+.xp-ok-btn{min-width:75px;height:24px;background:linear-gradient(180deg,#fff 0%,#ece9d8 100%);border:1px solid #888;border-radius:3px;font-size:11px;cursor:pointer;font-family:'Tahoma',sans-serif}
+.xp-ok-btn:hover{background:linear-gradient(180deg,#fff 0%,#ddd 100%)}
+
+@media(max-width:640px){
+  #hackbox{padding:16px}
+  .skull-ascii{font-size:8px}
+  .xp-window{max-width:calc(100vw - 16px)!important}
+  #startMenu{width:calc(100vw - 16px)}
+}
+
+/* POLAROID & GALLERY */
+.polaroid-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px;padding:16px;background:#2a2a38;max-height:480px;overflow-y:auto}
+.polaroid-card{background:#fff;padding:8px 8px 14px 8px;border-radius:2px;box-shadow:0 4px 10px rgba(0,0,0,.3);position:relative;cursor:pointer;transition:transform .25s ease,box-shadow .25s ease;transform:rotate(var(--rot,0deg))}
+.polaroid-card:hover{transform:scale(1.06) rotate(0deg);box-shadow:0 10px 22px rgba(0,0,0,.5);z-index:10}
+.polaroid-tape{position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:40px;height:14px;background:rgba(255,255,255,.6);border:1px solid rgba(0,0,0,.1);box-shadow:0 1px 3px rgba(0,0,0,.15);z-index:2}
+.polaroid-img-wrapper{width:100%;background-color:#111;overflow:hidden}
+.polaroid-caption{font-family:'Nunito','Segoe UI',sans-serif;font-size:11px;font-weight:700;color:#444;text-align:center;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;padding:16px;background:#1e1e2d;max-height:480px;overflow-y:auto}
+.chat-card{background:#2b2b3d;border:1px solid #444;border-radius:6px;padding:6px;cursor:pointer;transition:transform .2s,border-color .2s}
+.chat-card:hover{transform:translateY(-4px);border-color:#39ff14}
+.chat-thumb{width:100%;height:150px;object-fit:cover;border-radius:4px;background:#000;display:block}
+.chat-label{color:#fff;font-size:11px;text-align:center;margin-top:6px;font-weight:bold}
+.lightbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:20000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px)}
+.lightbox-content{max-width:90vw;max-height:80vh;object-fit:contain;border:4px solid #fff;border-radius:4px;box-shadow:0 0 30px rgba(0,0,0,.8)}
+.lightbox-nav{display:flex;gap:20px;margin-top:14px;align-items:center}
+.lightbox-btn{background:#0055e5;color:#fff;border:1px solid #fff;padding:6px 16px;font-weight:bold;font-size:14px;border-radius:4px;cursor:pointer}
+.lightbox-btn:hover{background:#3a8cf4}
+</style>
+</head>
+<body>
+
+<div id="bsod"><pre id="bsodText"></pre></div>
+
+<!-- TAHAP 1 -->
+<section id="stage1" class="term scan">
+  <canvas id="matrix"></canvas>
+  <div class="ip-faker" id="ipFaker"></div>
+  <div id="hackbox" class="pulse-border">
+    <div class="attempt-counter" id="attemptCounter">ATTEMPTS: 3/3</div>
+    <div class="skull-container"><pre class="skull-ascii" id="skullArt"></pre></div>
+    <div class="warning-banner">
+      <p style="color:var(--red);font-family:'VT323',monospace;font-size:28px;animation:blink 1s steps(1) infinite">⚠ SYSTEM COMPROMISED ⚠</p>
+    </div>
+    <div id="bootSequence" style="color:var(--green);font-size:18px;min-height:180px;margin-bottom:12px"></div>
+    <form id="pwForm" style="display:none" autocomplete="off">
+      <div style="color:var(--red);font-size:16px;margin-bottom:8px">
+        <span class="glow-red">root@compromised:~$</span> <span style="color:var(--amber)">ENTER SECURITY CODE TO REGAIN ACCESS</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input id="pw" class="hack-input" type="text" inputmode="numeric" maxlength="12" placeholder="DDMMYYYY" autocomplete="off">
+        <button type="submit" class="hack-btn">DECRYPT</button>
+      </div>
+      <p id="pwErr" style="min-height:24px;font-size:16px"></p>
+      <div style="margin-top:12px;padding:10px;border:1px solid #333;background:#0a0a0a">
+        <p style="color:var(--amber);font-size:14px;margin-bottom:4px">📡 INTERCEPTED TRANSMISSION:</p>
+        <p style="color:var(--green);font-size:15px;opacity:.8">"Kode sandi = hari pertama kita resmi pacaran. Format: tanggal-bulan-tahun (8 digit). Jangan sampai salah, sistem ini tidak main-main..."</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- TAHAP 2 -->
+<section id="stage2">
+  <div class="xp-wallpaper"></div>
+  <div id="icons"></div>
+  <div id="windows"></div>
+
+  <div class="xp-taskbar">
+    <button class="xp-start-btn" id="startBtn">
+      <svg class="win-logo" viewBox="0 0 20 20"><path fill="#ff0" d="M1 4l7-1v6.5H1z"/><path fill="#f00" d="M9 2.7L19 1v8.5H9z"/><path fill="#0f0" d="M1 11h7v6.5L1 16z"/><path fill="#00f" d="M9 11h10v8.5L9 18.3z"/></svg>
+      <span>start</span>
+    </button>
+    <div id="taskButtons"></div>
+    <div class="xp-tray">
+      <span style="font-size:14px">🔊</span>
+      <span style="font-size:14px">🛡️</span>
+      <span class="tray-time" id="trayTime">--:--</span>
+    </div>
+  </div>
+
+  <div id="startMenu">
+    <div class="start-header">
+      <div class="user-avatar">😈</div>
+      <div class="user-name" id="startUserName">Hacker_Yori</div>
+    </div>
+    <div class="start-body">
+      <div class="start-left" id="startLeft"></div>
+      <div class="start-right" id="startRight">
+        <div class="start-item" onclick="showAbout()"><span class="si-icon">📁</span>My Documents</div>
+        <div class="start-item" onclick="openFromMenu(openSecretPhotoGallery)"><span class="si-icon">🖼️</span>My Pictures</div>
+        <div class="start-item" onclick="showAbout()"><span class="si-icon">🎵</span>My Music</div>
+        <hr class="start-separator">
+        <div class="start-item" onclick="showControlPanel()"><span class="si-icon">⚙️</span>Control Panel</div>
+        <div class="start-item" onclick="showCMD()"><span class="si-icon">💻</span>Command Prompt</div>
+        <hr class="start-separator">
+        <div class="start-item" onclick="showHelp()"><span class="si-icon">❓</span>Help &amp; Support</div>
+      </div>
+    </div>
+    <div class="start-footer">
+      <button class="start-footer-btn" onclick="triggerBSOD()">🔌 Turn Off Computer</button>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ================= KONFIGURASI ================= */
+const CONFIG = {
+  password: "08012026",
+  namaDia: "Hiyori",
+  namaKamu: "Yori",
+  monthsary: 10,
+  pesanTxt: `Untuk Hiyori,
+
+Surat ini cuma ungkapan jujur dari aku, sekadar pengin ngingetin betapa beruntungnya aku punya kamu. Aku beneran sayang banget sama kamu. Bisa bareng kamu setiap hari itu hal yang selalu bikin aku bersyukur. Aku bakal terus belajar buat jadi pasangan yang baik, ngejaga perasaan kamu, dan pastinya gak akan pernah berniat nyakitin kamu.
+
+Aku pengin kita jalan bareng terus sampai nanti-nanti. Nggak usah pusing mikirin hal-hal rumit di luar sana, kita nikmati aja tiap momen yang kita lewati berdua.
+
+Kalau suatu saat kamu ngerasa capek atau kepala kamu lagi penuh banget, inget ya... aku selalu ada di sini. Kamu gak perlu pura-pura kuat di depan aku. Peluk aku aja, tumpahin semua rasa lelah kamu, dan jadi diri kamu sendiri seada-adanya.
+
+Tetep jadi Hiyori yang manja/clingy dan suka ngerewelin aku ya. Jujur, aku jauh lebih suka kamu omelin atau cerewetin daripada kamu tiba-tiba diem. omelan dan sifat manjamu itu bener-bener tempat paling nyaman buat aku.
+
+Satu hal lagi... kalau dulu pernah ada yang bikin kamu ngerasa gak berharga atau ditinggalin gitu aja, tolong buang jauh-jauh rasa itu ya. Aku di sini buat buktiin kalau kamu itu amat sangat layak buat dicintai sepenuh hati. Kamu berhak dapet semua kebahagiaan dan kasih sayang yang tulus.
+
+Makasih ya udah lahir dan bikin hidup aku jauh lebih indah.
+Aku sayang kamu, hari ini, besok, dan seterusnya. 💗
+
+— Yori`
+};
+
+const QUIZ = [
+  {q:"Siapa yang biasanya paling kangenan dan bawel kalau soal pacarnya?",
+   a:["Yori","Hiyori"],
+   r:["Bener banget! Yori emang kangenan dan bawel banget ke Hiyori 🥺💗","Salah dong, Yori yang paling kangenan & bawel 😜"]},
+  {q:"Siapa yang ngambekan tapi sebenarnya penyabar banget?",
+   a:["Hiyori","Yori"],
+   r:["Tepat sekali! Hiyori walau suka ngambek tapi penyabar banget ngadepin Yori 🥰","Bukan, Hiyori tuh yang penyabar & suka ngambek gemesin! 😜"]},
+  {q:"Siapa yang paling nyebelin di antara kita berdua?",
+   a:["Hiyori","Yori"],
+   r:["Masa Hiyori? Yori lah yang paling nyebelin! 😜","Hehe ngaku deh, Yori emang suka nyebelin tapi tetep kamu sayang kan? 😆"]},
+  {q:"Kalau Hiyori lagi kesel/capek, Yori lebih milih diapakan?",
+   a:["Dimarahin & direwelin","Didiemin"],
+   r:["Betul 100%! Yori jauh lebih suka dimarahin & direwelin daripada didiemin 🥺💗","Salah! Yori nggak suka didiemin, lebih baik dimarahin/direwelin!"]},
+  {q:"Siapa yang paling beruntung di dalam hubungan ini?",
+   a:["Yori karena punya Hiyori","Hiyori karena punya Yori","Kita berdua 💗"],
+   r:["Aku juga merasa super beruntung bisa memiliki Hiyori 🥺","Kamu memang berharga banget buat aku 💖","Jawaban paling sempurna! Dua-duanya saling melengkapi & beruntung memiliki satu sama lain. ✅"]}
+];
+
+/* ================= UTILITIES ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rand = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+
+/* ================= STATE ================= */
+let z = 10, winCount = 0, attempts = 3;
+const solved = new Set();
+const TOTAL_CHALLENGES = 5;
+
+/* ================= SKULL ================= */
+$('#skullArt').textContent = `
+    ██████████████████████████████
+    █░░░░░░░░░░██░░░░░░░░░░░░░░█
+    █░░▄▄▄▄▄░░░██░░░▄▄▄▄▄░░░░░█
+    █░░█████░░░██░░░█████░░░░░█
+    █░░░▀▀▀░░░░██░░░░▀▀▀░░░░░█
+    █░░░░░░░░░░░░░░░░░░░░░░░░░█
+    █░░░░░▄▄▄▄▄▄▄▄▄▄▄░░░░░░░░█
+    █░░░░░▀▀▀▀▀▀▀▀▀▀▀░░░░░░░░█
+    ██████████████████████████████
+       HACKER ${CONFIG.namaKamu.toUpperCase()} WAS HERE
+`;
+
+/* ================= FAKE IP ================= */
+(function fakeIP(){
+  const el = $('#ipFaker');
+  setInterval(()=>{
+    if($('#stage1').style.display==='none') return;
+    const lines = [];
+    for(let i=0;i<4;i++){
+      const ip = `${rand(1,255)}.${rand(0,255)}.${rand(0,255)}.${rand(1,254)}`;
+      const port = pick([22,80,443,8080,3306,21,25,3389]);
+      const status = pick(['INTERCEPTED','BLOCKED','TRACED','SCANNING','BREACHED']);
+      lines.push(`[${new Date().toISOString().split('T')[1].split('.')[0]}] ${ip}:${port} → ${status}`);
+    }
+    el.innerHTML = lines.join('<br>');
+  }, 800);
+})();
+
+/* ================= MATRIX RAIN ================= */
+(function matrix(){
+  const c=$('#matrix'),x=c.getContext('2d');let cols,drops;
+  const resize=()=>{c.width=innerWidth;c.height=innerHeight;cols=Math.floor(c.width/16);drops=Array(cols).fill(0).map(()=>Math.random()*-50)};
+  resize();addEventListener('resize',resize);
+  const chars="01♥♠♦♣アイウエオカキクケコ█▓▒░HACKED";
+  setInterval(()=>{
+    if($('#stage1').style.display==='none') return;
+    x.fillStyle='rgba(0,0,0,.06)';x.fillRect(0,0,c.width,c.height);
+    x.font='16px monospace';
+    drops.forEach((y,i)=>{
+      x.fillStyle=Math.random()>.92?'#ff2a4d':'#39ff14';
+      x.fillText(chars[Math.floor(Math.random()*chars.length)],i*16,y*16);
+      drops[i]=(y*16>c.height&&Math.random()>.975)?0:y+1;
+    });
+  },45);
+})();
+
+/* ================= BOOT SEQUENCE ================= */
+(async function boot(){
+  const box=$('#bootSequence');
+  const lines=[
+    {t:"[BIOS] Initializing system...",c:"var(--green)",d:300},
+    {t:"[WARN] Unauthorized access detected!",c:"var(--amber)",d:400},
+    {t:"[CRIT] Firewall BREACHED at 03:14:07 AM",c:"var(--red)",d:500},
+    {t:"[CRIT] Root access obtained by: HACKER_"+CONFIG.namaKamu.toUpperCase(),c:"var(--red)",d:600},
+    {t:"[INFO] All files have been encrypted",c:"var(--amber)",d:400},
+    {t:"[INFO] Desktop icons locked 🔒",c:"var(--amber)",d:300},
+    {t:"[CRIT] Ransom note deployed...",c:"var(--red)",d:500},
+    {t:"",c:"",d:200},
+    {t:"> "+CONFIG.namaDia+", laptopmu sudah aku sandera 😈",c:"var(--green)",d:600},
+    {t:"> Untuk mengambil kembali, buktikan kamu pacar sahnya.",c:"var(--green)",d:500},
+    {t:"> Masukkan kode sandi untuk memulai...",c:"var(--amber)",d:400},
+  ];
+  for(const line of lines){
+    if(!line.t){box.appendChild(document.createElement('br'));await sleep(line.d);continue}
+    const p=document.createElement('div');
+    p.style.color=line.c;
+    box.appendChild(p);
+    for(const ch of line.t){p.textContent+=ch;await sleep(18)}
+    await sleep(line.d);
+  }
+  await sleep(300);
+  $('#pwForm').style.display='block';
+  $('#pw').focus();
+  const form=$('#pwForm');
+  form.classList.add('glitch');
+  await sleep(300);
+  form.classList.remove('glitch');
+})();
+
+/* ================= PASSWORD CHECK ================= */
+$('#pwForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const v=$('#pw').value.replace(/\D/g,'');
+  if(v===CONFIG.password){
+    $('#pwErr').style.color='var(--green)';
+    $('#pwErr').innerHTML='<span class="glow-green">> ACCESS GRANTED ✓ Welcome, '+CONFIG.namaDia+'</span>';
+    await sleep(500);
+    document.body.style.transition='filter .5s';
+    document.body.style.filter='brightness(3)';
+    await sleep(300);
+    document.body.style.filter='brightness(0)';
+    await sleep(500);
+    $('#stage1').style.display='none';
+    $('#stage2').style.display='block';
+    document.body.style.filter='brightness(1)';
+    await sleep(800);
+    showNotification('⚠️ System Alert','Sistem telah di-hack oleh '+CONFIG.namaKamu+'. Selesaikan semua tantangan untuk memulihkan file-filemu!',6000);
+  } else {
+    attempts--;
+    $('#attemptCounter').textContent='ATTEMPTS: '+attempts+'/3';
+    $('#pwErr').style.color='var(--red)';
+    if(attempts<=0){
+      $('#pwErr').innerHTML='<span class="glow-red">> LOCKOUT IMMINENT... just kidding, coba lagi ya 😄</span>';
+      attempts=3;
+      setTimeout(()=>{$('#attemptCounter').textContent='ATTEMPTS: 3/3'},2000);
+    } else {
+      $('#pwErr').innerHTML='<span class="glow-red">> ACCESS DENIED ✗ Kode salah! Sisa percobaan: '+attempts+'</span>';
+    }
+    const b=$('#hackbox');b.classList.add('shake');
+    document.body.classList.add('glitch');
+    await sleep(400);
+    b.classList.remove('shake');
+    document.body.classList.remove('glitch');
+    $('#pw').select();
+  }
+});
+
+/* ================= DESKTOP ICONS ================= */
+const DESKTOP_ITEMS = [
+  {id:'recycle',name:'Recycle Bin',icon:'🗑️',type:'app'},
+  {id:'mypc',name:'My Computer',icon:'🖥️',type:'app',locked:true},
+  {id:'pesan',name:'pesan.txt',icon:'📄',type:'app'},
+  {id:'galerichat',name:'Galeri Chat',icon:'💬',type:'app'},
+  {id:'clue1',name:'Clue_#1.enc',icon:'🔐',type:'challenge',challenge:'decrypt'},
+  {id:'clue2',name:'Secret_Msg.bin',icon:'📝',type:'challenge',challenge:'binary'},
+  {id:'folder',name:'Foto_Rahasia',icon:'📁',type:'challenge',challenge:'memory'},
+  {id:'terminal',name:'Terminal.exe',icon:'💻',type:'challenge',challenge:'terminal'},
+  {id:'network',name:'Network_Hack.sys',icon:'🌐',type:'challenge',challenge:'wire'},
+  {id:'quiz',name:'Quiz_Final.exe',icon:'💾',type:'exe'},
+  {id:'ie',name:'Internet Explorer',icon:'🌍',type:'app',locked:true},
+  {id:'notepad',name:'Notepad',icon:'📝',type:'app'},
+  {id:'paint',name:'MS Paint',icon:'🎨',type:'app',locked:true},
+  {id:'mediaplr',name:'Windows Media Player',icon:'🎬',type:'app',locked:true},
+  {id:'messenger',name:'MSN Messenger',icon:'💬',type:'app',locked:true},
+];
+
+function allChallengesSolved(){return solved.size>=TOTAL_CHALLENGES}
+
+function renderDesktopIcons(){
+  const container=$('#icons');
+  container.innerHTML='';
+  DESKTOP_ITEMS.forEach(item=>{
+    const el=document.createElement('div');
+    const isLocked=item.locked&&!allChallengesSolved();
+    el.className='xp-icon'+(isLocked?' locked':'');
+    el.innerHTML=`<div class="icon-img" style="font-size:36px;line-height:40px">${item.icon}</div><div class="icon-label">${item.name}</div>`;
+    el.ondblclick=()=>openDesktopItem(item);
+    el.onclick=()=>{$$('.xp-icon').forEach(i=>i.classList.remove('selected'));el.classList.add('selected')};
+    container.appendChild(el);
+  });
+}
+renderDesktopIcons();
+
+function openDesktopItem(item){
+  $('#startMenu').style.display='none';
+  if(item.locked&&!allChallengesSolved()){
+    showXPError('Access Denied','🔒 Aplikasi ini terkunci! Selesaikan semua tantangan hacking untuk membuka.');
+    return;
+  }
+  if(item.type==='challenge'){
+    if(solved.has(item.id)){
+      if(item.id==='folder'){openSecretPhotoGallery();return}
+      showXPError('Info','✅ Tantangan ini sudah diselesaikan!');
+      return;
+    }
+    openChallenge(item);
+  } else if(item.type==='exe'){
+    if(!allChallengesSolved()){
+      showXPError('Windows Security','⛔ Akses ditolak!\n\nSelesaikan semua tantangan ('+solved.size+'/'+TOTAL_CHALLENGES+') sebelum menjalankan Quiz Final.');
+      return;
+    }
+    startQuiz();
+  } else {
+    openApp(item);
+  }
+}
+
+/* ================= WINDOW MANAGER ================= */
+function makeXPWindow(id,title,bodyHTML,opts={}){
+  const existing=document.getElementById('xpwin-'+id);
+  if(existing){existing.style.display='flex';existing.style.zIndex=++z;return existing}
+
+  const mobile=innerWidth<640;
+  const width=Math.min(opts.width||420,innerWidth-20);
+  const el=document.createElement('div');
+  el.id='xpwin-'+id;
+  el.className='xp-window pop';
+  el.style.cssText=`width:${width}px;max-height:calc(100vh - 50px);z-index:${++z};left:${mobile?8:80+winCount%6*30}px;top:${mobile?8:30+winCount%6*30}px`;
+  winCount++;
+
+  const titleIcon=opts.icon||'📄';
+  el.innerHTML=`
+    <div class="xp-titlebar">
+      <span class="title-icon">${titleIcon}</span>
+      <span class="title-text">${title}</span>
+      <div class="xp-win-btns">
+        <button class="xp-btn-minimize" title="Minimize">_</button>
+        <button class="xp-btn-maximize" title="Maximize">□</button>
+        <button class="xp-btn-close" title="Close">✕</button>
+      </div>
+    </div>
+    ${opts.menubar?'<div class="xp-menubar">'+opts.menubar+'</div>':''}
+    <div class="xp-win-body" style="${opts.bodyStyle||''}">${bodyHTML}</div>
+    ${opts.statusbar?'<div class="xp-statusbar">'+opts.statusbar+'</div>':''}
+  `;
+  $('#windows').appendChild(el);
+
+  const tb=document.createElement('button');
+  tb.id='task-'+id;
+  tb.className='task-btn active';
+  tb.innerHTML=`<span style="font-size:12px">${titleIcon}</span> ${title}`;
+  const focusMe=()=>{el.style.display='flex';el.style.zIndex=++z;$$('.task-btn').forEach(b=>b.classList.remove('active'));tb.classList.add('active')};
+  tb.onclick=focusMe;
+  $('#taskButtons').appendChild(tb);
+
+  el.querySelector('.xp-btn-close').onclick=()=>{el.remove();tb.remove()};
+  el.querySelector('.xp-btn-minimize').onclick=()=>{el.style.display='none';tb.classList.remove('active')};
+  el.querySelector('.xp-btn-maximize').onclick=()=>{
+    if(el.dataset.max){
+      el.style.cssText=el.dataset.max;delete el.dataset.max;
+    } else {
+      el.dataset.max=el.style.cssText;
+      el.style.left='0';el.style.top='0';el.style.width='100vw';el.style.maxHeight='calc(100vh - 36px)';el.style.height='calc(100vh - 36px)';
+    }
+  };
+  el.addEventListener('pointerdown',()=>{el.style.zIndex=++z;$$('.task-btn').forEach(b=>b.classList.remove('active'));tb.classList.add('active')});
+
+  const bar=el.querySelector('.xp-titlebar');let dx,dy,drag=false;
+  bar.addEventListener('pointerdown',e=>{
+    if(e.target.closest('.xp-win-btns'))return;
+    drag=true;dx=e.clientX-el.offsetLeft;dy=e.clientY-el.offsetTop;bar.setPointerCapture(e.pointerId);
+  });
+  bar.addEventListener('pointermove',e=>{
+    if(!drag)return;
+    el.style.left=Math.max(0,Math.min(innerWidth-60,e.clientX-dx))+'px';
+    el.style.top=Math.max(0,Math.min(innerHeight-80,e.clientY-dy))+'px';
+  });
+  bar.addEventListener('pointerup',()=>drag=false);
+  return el;
+}
+
+/* ================= ERROR DIALOG ================= */
+function showXPError(title,message){
+  const el=document.createElement('div');
+  el.className='xp-window pop';
+  el.style.cssText=`width:340px;max-width:calc(100vw - 16px);z-index:${++z};left:max(8px,calc(50% - 170px));top:30%;border-radius:8px 8px 4px 4px`;
+  el.innerHTML=`
+    <div class="xp-titlebar">
+      <span class="title-text">${title}</span>
+      <div class="xp-win-btns"><button class="xp-btn-close" title="Close">✕</button></div>
+    </div>
+    <div style="padding:16px;background:#ece9d8;display:flex;gap:12px;align-items:flex-start">
+      <span style="font-size:32px">⚠️</span>
+      <p style="font-size:12px;font-family:'Tahoma',sans-serif;white-space:pre-wrap;color:#000">${message}</p>
+    </div>
+    <div style="padding:8px 16px 12px;text-align:center;background:#ece9d8">
+      <button class="xp-ok-btn">OK</button>
+    </div>
+  `;
+  $('#windows').appendChild(el);
+  el.querySelector('.xp-ok-btn').onclick=()=>el.remove();
+  el.querySelector('.xp-btn-close').onclick=()=>el.remove();
+  setTimeout(()=>{el.classList.add('shake');setTimeout(()=>el.classList.remove('shake'),600)},250);
+}
+
+/* ================= NOTIFICATION ================= */
+function showNotification(title,msg,duration=4000){
+  const el=document.createElement('div');
+  el.className='xp-notification';
+  el.innerHTML=`
+    <div class="notif-header"><span>${title}</span><button onclick="this.closest('.xp-notification').remove()" style="background:none;border:none;color:#fff;cursor:pointer;font-size:14px">✕</button></div>
+    <div class="notif-body"><span class="notif-icon">💬</span><span>${msg}</span></div>
+  `;
+  document.body.appendChild(el);
+  setTimeout(()=>{if(el.parentNode)el.remove()},duration);
+}
+
+/* ================= CHALLENGES ================= */
+function openChallenge(item){
+  switch(item.challenge){
+    case'decrypt':challengeDecrypt(item);break;
+    case'binary':challengeBinary(item);break;
+    case'memory':challengeMemory(item);break;
+    case'terminal':challengeTerminal(item);break;
+    case'wire':challengeWire(item);break;
+  }
+}
+
+const SECRET_MSG="Aku bukan hacker beneran tapi aku berhasil mencuri hatimu";
+function caesar(str,shift){
+  return str.split('').map(c=>{
+    if(/[a-zA-Z]/.test(c)){
+      const base=c===c.toUpperCase()?65:97;
+      return String.fromCharCode(((c.charCodeAt(0)-base+shift)%26)+base);
+    }
+    return c;
+  }).join('');
+}
+
+/* --- 1: Caesar --- */
+function challengeDecrypt(item){
+  const encrypted=caesar(SECRET_MSG,3);
+  window._encryptedText=encrypted;
+  makeXPWindow(item.id,'⚠ '+item.name+' - ENCRYPTED FILE',`
+    <div class="challenge-container" style="background:#0a0a0a;color:var(--green);font-family:'VT323',monospace">
+      <div class="binary-bg" id="binaryBg1"></div>
+      <div style="position:relative;z-index:1">
+        <p style="color:var(--red);font-size:20px;margin-bottom:12px">🔐 FILE TERENKRIPSI — CAESAR CIPHER DETECTED</p>
+        <div class="hack-progress"><div class="hack-progress-fill" id="decryptProgress" style="width:0%"></div></div>
+        <p style="color:var(--amber);font-size:14px;margin-bottom:8px">Encrypted data:</p>
+        <div style="background:#111;border:1px solid #333;padding:12px;margin-bottom:12px;font-size:16px;word-break:break-word" id="encryptedDisplay">${encrypted}</div>
+        <p style="color:var(--amber);font-size:14px;margin-bottom:4px">Petunjuk: Setiap huruf digeser 3 posisi ke depan (A→D, B→E, dst.)</p>
+        <p style="color:#888;font-size:13px;margin-bottom:12px">Ketik kata kunci yang tersembunyi di pesan: kata terakhir dari pesan ini</p>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input type="text" id="decryptInput" placeholder="Ketik jawaban..." onkeydown="if(event.key==='Enter')checkDecrypt()" style="flex:1;min-width:0;background:#111;border:1px solid #333;color:var(--green);padding:8px;font-family:'VT323',monospace;font-size:18px;outline:none">
+          <button onclick="checkDecrypt()" style="background:transparent;border:1px solid var(--green);color:var(--green);padding:8px 16px;font-family:'VT323',monospace;cursor:pointer;font-size:16px">DECRYPT</button>
+        </div>
+        <p id="decryptResult" style="margin-top:8px;font-size:16px;min-height:20px"></p>
+      </div>
+    </div>
+  `,{width:500,icon:'📄',bodyStyle:'padding:0',statusbar:'Encryption: AES-256 | Status: LOCKED'});
+  fillBinaryBg('binaryBg1');
+}
+
+window.checkDecrypt=async function(){
+  const input=document.getElementById('decryptInput');
+  const result=document.getElementById('decryptResult');
+  if(!input||window._decrypting)return;
+  const val=input.value.trim().toLowerCase();
+  if(val==='hatimu'||val==='hati'){
+    window._decrypting=true;
+    result.innerHTML='<span style="color:var(--green)" class="glow-green">✓ DECRYPTION SUCCESSFUL!</span>';
+    const display=document.getElementById('encryptedDisplay');
+    const progress=document.getElementById('decryptProgress');
+    for(let i=0;i<=100;i+=2){
+      if(!document.getElementById('encryptedDisplay'))break;
+      progress.style.width=i+'%';
+      const revealed=Math.floor(SECRET_MSG.length*(i/100));
+      display.innerHTML='<span style="color:var(--green)">'+SECRET_MSG.substring(0,revealed)+'</span><span style="color:var(--red);opacity:.5">'+window._encryptedText.substring(revealed)+'</span>';
+      await sleep(30);
+    }
+    if(document.getElementById('encryptedDisplay')){
+      display.innerHTML='<span style="color:var(--green);font-size:18px" class="glow-green">'+SECRET_MSG+'</span>';
+    }
+    await sleep(500);
+    window._decrypting=false;
+    completedChallenge('clue1','Clue #1 Decrypted! 🎉');
+  } else {
+    result.innerHTML='<span style="color:var(--red)">✗ DECRYPTION FAILED — Kata kunci salah!</span>';
+    input.value='';
+    input.focus();
+  }
+};
+
+/* --- 2: Binary --- */
+function challengeBinary(item){
+  const bytes=['01000011','01001001','01001110','01010100','01000001'];
+  makeXPWindow(item.id,'⚠ '+item.name+' - BINARY DECODER',`
+    <div class="challenge-container" style="background:#0a0a0a;color:var(--green);font-family:'VT323',monospace">
+      <div class="binary-bg" id="binaryBg2"></div>
+      <div style="position:relative;z-index:1">
+        <p style="color:var(--red);font-size:20px;margin-bottom:8px">📡 INTERCEPTED BINARY TRANSMISSION</p>
+        <div class="hack-progress"><div class="hack-progress-fill" id="binaryProgress" style="width:0%"></div></div>
+        <p style="color:var(--amber);font-size:14px;margin:12px 0 8px">Signal data yang tertangkap:</p>
+        <div style="background:#111;border:1px solid #333;padding:12px;margin-bottom:8px">
+          <div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:center;font-size:22px;letter-spacing:3px">
+            ${bytes.map(b=>'<div><div style="color:var(--green)">'+b+'</div><div style="color:#555;font-size:14px;text-align:center">[?]</div></div>').join('')}
+          </div>
+        </div>
+        <p style="color:var(--amber);font-size:14px;margin-bottom:4px">💡 Binary to ASCII: Setiap 8 digit = 1 huruf</p>
+        <p style="color:#888;font-size:13px;margin-bottom:12px">Contoh: 01000001 = 65 (desimal) = huruf "A"</p>
+        <p style="color:var(--amber);font-size:14px;margin-bottom:8px">Apa kata yang terbentuk dari 5 byte di atas?</p>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="binaryInput" placeholder="Ketik kata..." maxlength="10" onkeydown="if(event.key==='Enter')checkBinary()" style="flex:1;min-width:0;background:#111;border:1px solid #333;color:var(--green);padding:8px;font-family:'VT323',monospace;font-size:18px;outline:none">
+          <button onclick="checkBinary()" style="background:transparent;border:1px solid var(--green);color:var(--green);padding:8px 16px;font-family:'VT323',monospace;cursor:pointer;font-size:16px">DECODE</button>
+        </div>
+        <p id="binaryResult" style="margin-top:8px;font-size:16px;min-height:20px"></p>
+      </div>
+    </div>
+  `,{width:520,icon:'📝',bodyStyle:'padding:0',statusbar:'Protocol: TCP/IP | Frequency: 2.4GHz'});
+  fillBinaryBg('binaryBg2');
+}
+
+window.checkBinary=async function(){
+  const input=document.getElementById('binaryInput');
+  const result=document.getElementById('binaryResult');
+  const progress=document.getElementById('binaryProgress');
+  if(!input||window._binaryBusy)return;
+  const val=input.value.trim().toUpperCase();
+  if(val==='CINTA'){
+    window._binaryBusy=true;
+    result.innerHTML='<span style="color:var(--green)" class="glow-green">✓ TRANSMISSION DECODED!</span>';
+    for(let i=0;i<=100;i+=5){
+      if(!document.getElementById('binaryProgress'))break;
+      progress.style.width=i+'%';
+      await sleep(40);
+    }
+    await sleep(300);
+    const body=document.querySelector('#xpwin-clue2 .xp-win-body');
+    if(body){
+      body.innerHTML=`
+        <div class="challenge-container" style="background:#0a0a0a;color:var(--green);font-family:'VT323',monospace;text-align:center">
+          <p style="font-size:24px;color:var(--green);margin-bottom:16px" class="glow-green">📡 DECODED MESSAGE:</p>
+          <div style="background:#002200;border:2px solid var(--green);padding:20px;border-radius:4px;margin:0 auto;max-width:400px">
+            <p style="font-size:20px;color:var(--green);line-height:1.6">C.I.N.T.A — itulah satu-satunya virus yang nggak mau aku hapus dari sistemku. Karena yang bikin sistem ini hang bukan malware, tapi senyum kamu. 💚</p>
+          </div>
+          <p style="color:var(--amber);margin-top:12px;font-size:14px">[ TRANSMISSION COMPLETE ]</p>
+        </div>
+      `;
+    }
+    await sleep(500);
+    window._binaryBusy=false;
+    completedChallenge('clue2','Binary Decoded! 🎉');
+  } else {
+    result.innerHTML='<span style="color:var(--red)">✗ DECODE FAILED — Kata salah!</span>';
+    input.value='';
+    input.focus();
+  }
+};
+
+/* --- 3: Memory --- */
+let flippedCards=[], matchedPairs=0, canFlip=true;
+function challengeMemory(item){
+  flippedCards=[];matchedPairs=0;canFlip=true;
+  const emojis=['💗','💗','😘','😘','🥰','🥰','💕','💕'].sort(()=>Math.random()-.5);
+  makeXPWindow(item.id,'⚠ '+item.name+' - MEMORY CRACK',`
+    <div class="challenge-container" style="background:#0a0a0a;color:var(--green);font-family:'VT323',monospace">
+      <p style="color:var(--red);font-size:18px;margin-bottom:8px">🔐 ENCRYPTED FOLDER — MEMORY PATTERN REQUIRED</p>
+      <p style="color:var(--amber);font-size:14px;margin-bottom:4px">Folder ini dilindungi memory-lock.</p>
+      <p style="color:#888;font-size:13px;margin-bottom:12px">Cocokkan semua pasangan emoji untuk mendekripsi folder!</p>
+      <div class="hack-progress"><div class="hack-progress-fill" id="memoryProgress" style="width:0%"></div></div>
+      <div class="memory-grid" id="memoryGrid">
+        ${emojis.map((e,i)=>`<div class="memory-card" data-idx="${i}" data-emoji="${e}" onclick="flipCard(this)"><span style="font-size:24px;color:var(--green)">?</span></div>`).join('')}
+      </div>
+      <p id="memoryResult" style="text-align:center;margin-top:8px;font-size:16px;min-height:20px"></p>
+    </div>
+  `,{width:400,icon:'📁',bodyStyle:'padding:0',statusbar:'Encryption: RSA-4096 | Files: LOCKED'});
+}
+
+window.flipCard=function(card){
+  if(!canFlip||card.classList.contains('flipped')||card.classList.contains('matched'))return;
+  card.classList.add('flipped');
+  card.innerHTML=`<span style="font-size:28px">${card.dataset.emoji}</span>`;
+  flippedCards.push(card);
+  if(flippedCards.length===2){
+    canFlip=false;
+    const[a,b]=flippedCards;
+    if(a.dataset.emoji===b.dataset.emoji){
+      matchedPairs++;
+      a.classList.add('matched');b.classList.add('matched');
+      const progress=document.getElementById('memoryProgress');
+      if(progress) progress.style.width=(matchedPairs/4*100)+'%';
+      flippedCards=[];canFlip=true;
+      if(matchedPairs>=4){
+        setTimeout(async()=>{
+          const result=document.getElementById('memoryResult');
+          if(result) result.innerHTML='<span style="color:var(--green)" class="glow-green">🔓 FOLDER DECRYPTED!</span>';
+          await sleep(800);
+          matchedPairs=0;flippedCards=[];
+          const w=document.getElementById('xpwin-folder');
+          if(w){w.remove();const t=document.getElementById('task-folder');if(t)t.remove()}
+          completedChallenge('folder','Folder Cracked! 🎉');
+        },500);
+      }
+    } else {
+      setTimeout(()=>{
+        a.classList.remove('flipped');b.classList.remove('flipped');
+        a.innerHTML='<span style="font-size:24px;color:var(--green)">?</span>';
+        b.innerHTML='<span style="font-size:24px;color:var(--green)">?</span>';
+        flippedCards=[];canFlip=true;
+      },800);
+    }
+  }
+};
+
+/* --- 4: Terminal --- */
+function challengeTerminal(item){
+  window._termStep=0;
+  makeXPWindow(item.id,'⚠ '+item.name+' - ROOT ACCESS',`
+    <div class="hack-terminal" id="terminalBody" onclick="document.getElementById('terminalInput')&&document.getElementById('terminalInput').focus()">
+      <div id="terminalOutput">
+        <p style="color:var(--amber)">╔══════════════════════════════════════╗</p>
+        <p style="color:var(--amber)">║  HACKER TERMINAL v3.14 — ROOT MODE  ║</p>
+        <p style="color:var(--amber)">╚══════════════════════════════════════╝</p>
+        <br>
+        <p style="color:#888">Type "help" for available commands.</p>
+        <p style="color:#888">Objective: Find the hidden password to crack the system.</p>
+        <p style="color:var(--red)">WARNING: 3 commands must be executed in correct order.</p>
+        <br>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="color:var(--amber)">root@hacked:~$</span>
+        <input type="text" id="terminalInput" onkeydown="if(event.key==='Enter')execTerminal()" style="flex:1;min-width:0;background:transparent;border:none;color:var(--green);font-family:'VT323',monospace;font-size:16px;outline:none" autocomplete="off">
+      </div>
+    </div>
+  `,{width:520,icon:'💻',bodyStyle:'padding:0'});
+  setTimeout(()=>{const i=document.getElementById('terminalInput');if(i)i.focus()},100);
+}
+
+window.execTerminal=async function(){
+  const input=document.getElementById('terminalInput');
+  const output=document.getElementById('terminalOutput');
+  if(!input||!output||window._termBusy)return;
+  const cmd=input.value.trim().toLowerCase();
+  input.value='';
+
+  const addLine=(text,color)=>{
+    const o=document.getElementById('terminalOutput');
+    if(!o)return;
+    const p=document.createElement('p');
+    p.style.color=color||'var(--green)';
+    p.innerHTML=text||'&nbsp;';
+    o.appendChild(p);
+    const body=document.getElementById('xpwin-terminal');
+    const wb=body&&body.querySelector('.xp-win-body');
+    if(wb)wb.scrollTop=wb.scrollHeight;
+  };
+
+  addLine(`<span style="color:var(--amber)">root@hacked:~$</span> ${cmd}`);
+  window._termBusy=true;
+  try{
+    if(cmd==='help'){
+      addLine('Available commands:','#888');
+      addLine('  scan     — Scan network for vulnerabilities','#7ec8e3');
+      addLine('  exploit  — Run exploit on target','#7ec8e3');
+      addLine('  crack    — Crack the system password','#7ec8e3');
+      addLine('  ls       — List files','#7ec8e3');
+      addLine('  whoami   — Display current user','#7ec8e3');
+      addLine('  clear    — Clear terminal','#7ec8e3');
+      addLine('');
+      addLine('Execute in order: scan → exploit → crack','var(--amber)');
+    } else if(cmd==='whoami'){
+      addLine('root (COMPROMISED by Hacker_'+CONFIG.namaKamu+')','var(--red)');
+    } else if(cmd==='ls'){
+      addLine('drwxr-xr-x  secret_love_letter.enc');
+      addLine('drwxr-xr-x  hati_kamu.locked');
+      addLine('-rwxr-xr-x  rindu.exe');
+      addLine('-rw-r--r--  kangen_mode.cfg');
+    } else if(cmd==='clear'){
+      output.innerHTML='';
+    } else if(cmd==='scan'){
+      if(window._termStep===0){
+        addLine('[*] Initiating network scan...','var(--amber)');
+        for(let i=0;i<=10;i++){
+          await sleep(150);
+          addLine(`[SCAN] Progress: ${'█'.repeat(i)}${'░'.repeat(10-i)} ${i*10}%`);
+        }
+        addLine('[+] Vulnerability found: PORT 8082 — LOVE_OVERFLOW');
+        addLine('[+] Target identified. Run "exploit" to continue.','var(--amber)');
+        window._termStep=1;
+      } else addLine('[!] Scan already completed.','var(--amber)');
+    } else if(cmd==='exploit'){
+      if(window._termStep===1){
+        addLine('[*] Deploying exploit: LOVE_OVERFLOW...','var(--amber)');
+        for(const f of ['Injecting payload...','Bypassing firewall...','Escalating privileges...','Gaining root access...']){
+          await sleep(600);
+          addLine('[EXPLOIT] '+f,'var(--red)');
+        }
+        await sleep(400);
+        addLine('[+] EXPLOIT SUCCESSFUL! Root access gained.');
+        addLine('[+] Run "crack" to extract the final key.','var(--amber)');
+        window._termStep=2;
+      } else if(window._termStep===0){
+        addLine('[!] ERROR: Run "scan" first!','var(--red)');
+      } else addLine('[!] Exploit already deployed.','var(--amber)');
+    } else if(cmd==='crack'){
+      if(window._termStep===2){
+        addLine('[*] Cracking system password...','var(--amber)');
+        const chars='abcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+        for(let i=0;i<15;i++){
+          let fake='';
+          for(let j=0;j<12;j++) fake+=chars[Math.floor(Math.random()*chars.length)];
+          addLine('[CRACK] Trying: '+fake,'#777');
+          await sleep(200);
+        }
+        await sleep(300);
+        addLine('╔════════════════════════════════════════╗');
+        addLine('║  ✓ PASSWORD CRACKED SUCCESSFULLY!      ║');
+        addLine('║  Key: KAMU_SEGALANYA_BAGIKU            ║');
+        addLine('╚════════════════════════════════════════╝');
+        addLine('Hidden message: "Di balik semua kode dan enkripsi ini,','var(--amber)');
+        addLine('ada satu pesan yang nggak perlu di-decode:','var(--amber)');
+        addLine('Aku sayang kamu. Titik." 💚','var(--amber)');
+        await sleep(800);
+        window._termStep=3;
+        completedChallenge('terminal','Terminal Hacked! 🎉');
+      } else addLine('[!] ERROR: Complete scan & exploit first!','var(--red)');
+    } else if(cmd){
+      addLine(`bash: ${cmd}: command not found`,'var(--red)');
+    }
+  } finally { window._termBusy=false; }
+};
+
+/* --- 5: Wire --- */
+const WIRES=[
+  {left:'Sabar',right:'Kamu',color:'#ff4444'},
+  {left:'Setia',right:'Kamu',color:'#44ff44'},
+  {left:'Sayang',right:'Kamu',color:'#4444ff'},
+  {left:'Kangen',right:'Kamu juga',color:'#ffaa00'},
+];
+function challengeWire(item){
+  window._wireConnected=0;
+  makeXPWindow(item.id,'⚠ '+item.name+' - SYSTEM RECONNECT',`
+    <div class="challenge-container" style="background:#0a0a0a;color:var(--green);font-family:'VT323',monospace">
+      <p style="color:var(--red);font-size:18px;margin-bottom:8px">🌐 NETWORK CONNECTIONS SEVERED</p>
+      <p style="color:var(--amber);font-size:14px;margin-bottom:4px">Hubungkan kembali kabel network yang terputus.</p>
+      <p style="color:#888;font-size:13px;margin-bottom:12px">Klik pada setiap kabel untuk menghubungkan. Semua jawaban mengarah ke satu hal...</p>
+      <div class="hack-progress"><div class="hack-progress-fill" id="wireProgress" style="width:0%"></div></div>
+      <div id="wireGame" style="margin:12px 0">
+        ${WIRES.map((w,i)=>`
+          <div class="wire" onclick="connectWire(this,${i})">
+            <div style="background:${w.color};width:16px;height:16px;border-radius:50%"></div>
+            <span style="color:${w.color};font-size:18px;flex:1">${w.left}</span>
+            <span style="font-size:18px;color:#777">━━━ ? ━━━</span>
+            <span style="color:#888;font-size:16px">[ Klik untuk connect ]</span>
+            <div style="background:#333;width:16px;height:16px;border-radius:50%"></div>
+          </div>`).join('')}
+      </div>
+      <p id="wireResult" style="text-align:center;margin-top:8px;font-size:16px;min-height:20px"></p>
+    </div>
+  `,{width:480,icon:'🌐',bodyStyle:'padding:0',statusbar:'Network: DISCONNECTED | Packets: 0/0'});
+}
+
+window.connectWire=async function(el,idx){
+  if(el.classList.contains('connected'))return;
+  el.classList.add('connected');
+  const w=WIRES[idx];
+  el.innerHTML=`
+    <div style="background:${w.color};width:16px;height:16px;border-radius:50%;box-shadow:0 0 8px ${w.color}"></div>
+    <span style="color:${w.color};font-size:18px;flex:1">${w.left}</span>
+    <span style="font-size:18px;color:${w.color}">━━━━━━━━━</span>
+    <span style="color:${w.color};font-size:18px;font-weight:bold">${w.right}</span>
+    <div style="background:${w.color};width:16px;height:16px;border-radius:50%;box-shadow:0 0 8px ${w.color}"></div>`;
+  window._wireConnected++;
+  const progress=document.getElementById('wireProgress');
+  if(progress) progress.style.width=(window._wireConnected/4*100)+'%';
+
+  if(window._wireConnected>=4){
+    await sleep(600);
+    const result=document.getElementById('wireResult');
+    if(result) result.innerHTML='<span style="color:var(--green)" class="glow-green">🌐 ALL CONNECTIONS RESTORED!</span>';
+    await sleep(500);
+    const body=document.querySelector('#xpwin-network .xp-win-body');
+    if(body){
+      body.innerHTML=`
+        <div class="challenge-container" style="background:#0a0a0a;color:var(--green);font-family:'VT323',monospace;text-align:center">
+          <p style="font-size:22px;color:var(--green);margin-bottom:16px" class="glow-green">🌐 NETWORK RESTORED</p>
+          <div style="background:#002200;border:2px solid var(--green);padding:20px;border-radius:4px;margin:0 auto;max-width:400px">
+            <p style="font-size:18px;color:var(--green);line-height:1.6">
+              Sabar → Kamu<br>Setia → Kamu<br>Sayang → Kamu<br>Kangen → Kamu juga<br><br>
+              Semua koneksi mengarah ke kamu. Karena kamu itu segalanya. 💚
+            </p>
+          </div>
+        </div>`;
+    }
+    await sleep(500);
+    completedChallenge('network','Network Restored! 🎉');
+  }
+};
+
+/* ================= CHALLENGE COMPLETE ================= */
+async function completedChallenge(id,msg){
+  if(solved.has(id))return;
+  solved.add(id);
+  showNotification('🎉 Challenge Complete!',msg+' ('+solved.size+'/'+TOTAL_CHALLENGES+')',4000);
+  renderDesktopIcons();
+
+  if(id==='folder'){
+    setTimeout(()=>openSecretPhotoGallery('sliced'),1200);
+  }
+  if(solved.size>=TOTAL_CHALLENGES){
+    await sleep(1500);
+    showNotification('🔓 ALL CHALLENGES COMPLETE!','Semua tantangan selesai! Quiz_Final.exe sudah bisa dijalankan!',6000);
+    renderDesktopIcons();
+  }
+}
+
+/* ================= GALLERY & SPECIAL APPS ================= */
+// ⚠ Sesuaikan nama file dengan yang ada di folder assets kamu
+const CHAT_IMAGES = Array.from({length:10},(_,i)=>`assets/chat${i+1}.jpeg`);
+const POLAROID_STRIPS = [
+  'assets/WhatsApp Image 2026-10-08 at 1.15.21 PM.jpeg',
+  'assets/WhatsApp Image 2026-10-08 at 1.23.31 PM.jpeg',
+  'assets/WhatsApp Image 2026-10-08 at 1.23.32 PM.jpeg',
+  'assets/WhatsApp Image 2026-10-08 at 1.23.34 PM.jpeg'
+];
+
+// Wallpaper desktop: ganti dengan foto landscape kamu kalau ada, mis. 'assets/wallpaper.jpg'
+const WALLPAPER = POLAROID_STRIPS[0];
+(function setWallpaper(){
+  const wp=document.querySelector('.xp-wallpaper');
+  wp.style.backgroundImage=`url("${encodeURI(WALLPAPER)}"), linear-gradient(180deg,#245edb 0%,#5ca8f8 40%,#4daf3a 70%,#2d8c1e 100%)`;
+  wp.style.backgroundSize='cover';
+  wp.style.backgroundPosition='center';
+  wp.style.backgroundRepeat='no-repeat';
+})();
+
+// Registry untuk lightbox
+const LB = { chat: CHAT_IMAGES.map(src=>({src})), strips: POLAROID_STRIPS.map(src=>({src})), sliced: [] };
+
+function loadImg(src){
+  return new Promise(res=>{
+    const i=new Image();
+    i.onload=()=>res(i);
+    i.onerror=()=>res(null);
+    i.src=encodeURI(src);
+  });
+}
+
+// Potong strip jadi 3 pakai CSS (tanpa canvas, aman dibuka langsung dari file)
+function sliceBg(it){
+  return it.vertical
+    ? `background-size:100% 300%;background-position:0 ${it.pos}%;`
+    : `background-size:300% 100%;background-position:${it.pos}% 0;`;
+}
+
+let slicedCache=null;
+async function loadAndSlicePolaroids(){
+  if(slicedCache) return slicedCache;
+  const out=[];
+  for(let s=0;s<POLAROID_STRIPS.length;s++){
+    const src=POLAROID_STRIPS[s];
+    const img=await loadImg(src);
+    if(!img) continue;
+    const vertical=img.height>=img.width;
+    const aspect=vertical ? img.width/(img.height/3) : (img.width/3)/img.height;
+    for(let i=0;i<3;i++){
+      out.push({src,vertical,aspect,pos:i*50,title:`Yori ❤️ Hiyori (Strip #${s+1} • Foto #${i+1})`});
+    }
+  }
+  slicedCache=out;
+  LB.sliced=out;
+  return out;
+}
+
+function openPesanNotepad(){
+  makeXPWindow('pesanNotepad','pesan.txt - Notepad',`
+    <div style="padding:0;height:360px;display:flex;flex-direction:column;background:#fff">
+      <textarea readonly style="width:100%;height:100%;border:none;outline:none;resize:none;padding:14px;font-family:'Segoe UI','Nunito',sans-serif;font-size:13px;line-height:1.6;color:#222;background:#fff;user-select:text">${CONFIG.pesanTxt}</textarea>
+    </div>
+  `,{icon:'📄',width:520,menubar:'<span>File</span><span>Edit</span><span>Format</span><span>View</span><span>Help</span>',statusbar:'Ln 1, Col 1 | UTF-8'});
+}
+
+function openBlankNotepad(){
+  makeXPWindow('blankNotepad','Untitled - Notepad',`
+    <div style="padding:0;height:320px;display:flex;flex-direction:column;background:#fff">
+      <textarea style="width:100%;height:100%;border:none;outline:none;resize:none;padding:10px;font-family:'Courier New',monospace;font-size:13px;color:#222;background:#fff;user-select:text"></textarea>
+    </div>
+  `,{icon:'📝',width:460,menubar:'<span>File</span><span>Edit</span><span>Format</span><span>View</span><span>Help</span>',statusbar:'Ln 1, Col 1'});
+}
+
+function openChatGallery(){
+  makeXPWindow('chatGallery','💬 Galeri Chat — Chat Memories',`
+    <div style="padding:0;background:#151520;min-height:360px">
+      <div style="background:#222233;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333;flex-wrap:wrap;gap:4px">
+        <span style="color:#39ff14;font-family:'VT323',monospace;font-size:16px">💬 Chat Screenshots (${CHAT_IMAGES.length} items)</span>
+        <span style="color:#aaa;font-size:11px">Klik foto untuk perbesar 🔍</span>
+      </div>
+      <div class="chat-grid">
+        ${CHAT_IMAGES.map((src,idx)=>`
+          <div class="chat-card" onclick="openLightbox('chat',${idx},'Chat #${idx+1}')">
+            <img src="${encodeURI(src)}" class="chat-thumb" alt="Chat ${idx+1}" onerror="this.style.opacity=.2;this.alt='file tidak ketemu'">
+            <div class="chat-label">Chat #${idx+1}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+  `,{icon:'💬',width:580,menubar:'<span>File</span><span>View</span><span>Favorites</span>'});
+}
+
+window.openSecretPhotoGallery=function(mode='sliced'){
+  makeXPWindow('secretGallery','📁 Foto_Rahasia — Polaroid Collection',`
+    <div style="padding:0;background:#1e1e2d;min-height:380px">
+      <div style="background:#2b2b3d;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #444;flex-wrap:wrap;gap:6px">
+        <span style="color:#ff69b4;font-weight:bold;font-size:13px">📸 Polaroid Yori &amp; Hiyori</span>
+        <div style="display:flex;gap:6px">
+          <button onclick="renderSecretGalleryView('sliced')" id="btnViewSliced" style="background:#444;color:#fff;border:none;padding:4px 8px;border-radius:3px;font-size:11px;cursor:pointer">📸 12 Foto (3/Strip)</button>
+          <button onclick="renderSecretGalleryView('strips')" id="btnViewStrips" style="background:#444;color:#fff;border:none;padding:4px 8px;border-radius:3px;font-size:11px;cursor:pointer">🎞️ 4 Strip Asli</button>
+        </div>
+      </div>
+      <div id="secretGalleryBody" style="padding:8px">
+        <p style="color:#aaa;text-align:center;font-size:12px;padding:16px">Memuat foto rahasia...</p>
+      </div>
+    </div>
+  `,{icon:'📁',width:620,menubar:'<span>File</span><span>Edit</span><span>View</span>'});
+  renderSecretGalleryView(mode);
+};
+
+window.renderSecretGalleryView=async function(mode){
+  const body=document.getElementById('secretGalleryBody');
+  const bS=document.getElementById('btnViewSliced'),bT=document.getElementById('btnViewStrips');
+  if(bS) bS.style.background=mode==='sliced'?'#0055e5':'#444';
+  if(bT) bT.style.background=mode==='strips'?'#0055e5':'#444';
+  if(!body) return;
+
+  if(mode==='sliced'){
+    const photos=await loadAndSlicePolaroids();
+    const b2=document.getElementById('secretGalleryBody');
+    if(!b2) return;
+    if(!photos.length){
+      b2.innerHTML='<p style="color:#ff6b81;text-align:center;font-size:12px;padding:16px">Foto polaroid nggak ketemu. Cek nama file di POLAROID_STRIPS 🥺</p>';
+      return;
+    }
+    b2.innerHTML=`
+      <div class="polaroid-grid">
+        ${photos.map((p,idx)=>`
+          <div class="polaroid-card" style="--rot:${(idx%5-2)*2.5}deg" onclick="openLightbox('sliced',${idx},'Yori ❤️ Hiyori')">
+            <div class="polaroid-tape"></div>
+            <div class="polaroid-img-wrapper" style="aspect-ratio:${p.aspect};background-image:url('${encodeURI(p.src)}');background-repeat:no-repeat;${sliceBg(p)}"></div>
+            <div class="polaroid-caption">Yori ❤️ Hiyori #${idx+1}</div>
+          </div>`).join('')}
+      </div>`;
+  } else {
+    body.innerHTML=`
+      <div class="chat-grid">
+        ${POLAROID_STRIPS.map((src,idx)=>`
+          <div class="chat-card" onclick="openLightbox('strips',${idx},'Polaroid Strip')">
+            <img src="${encodeURI(src)}" class="chat-thumb" style="height:200px" alt="Strip ${idx+1}" onerror="this.style.opacity=.2">
+            <div class="chat-label">Strip #${idx+1} (3 Foto)</div>
+          </div>`).join('')}
+      </div>`;
+  }
+};
+
+window.openLightbox=function(key,startIdx,caption=''){
+  const arr=LB[key]||[];
+  if(!arr.length) return;
+  let cur=startIdx;
+  const old=document.getElementById('lightboxModal'); if(old) old.remove();
+
+  const el=document.createElement('div');
+  el.id='lightboxModal';
+  el.className='lightbox-overlay';
+
+  const update=()=>{
+    const it=arr[cur];
+    const media=it.aspect
+      ? `<div class="lightbox-content" style="aspect-ratio:${it.aspect};width:min(90vw,calc(80vh*${it.aspect}));background-color:#000;background-image:url('${encodeURI(it.src)}');background-repeat:no-repeat;${sliceBg(it)}"></div>`
+      : `<img src="${encodeURI(it.src)}" class="lightbox-content" alt="Preview">`;
+    el.innerHTML=`
+      <div style="position:absolute;top:16px;right:20px;color:#fff;font-size:24px;cursor:pointer" onclick="document.getElementById('lightboxModal').remove()">✕</div>
+      ${media}
+      <p style="color:#fff;margin-top:12px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:bold">${caption} (${cur+1} / ${arr.length})</p>
+      <div class="lightbox-nav">
+        <button class="lightbox-btn" data-dir="-1">◀ Prev</button>
+        <button class="lightbox-btn" data-dir="1">Next ▶</button>
+      </div>`;
+    el.querySelectorAll('.lightbox-btn').forEach(b=>{
+      b.onclick=e=>{e.stopPropagation();cur=(cur+Number(b.dataset.dir)+arr.length)%arr.length;update()};
+    });
+  };
+  update();
+  document.body.appendChild(el);
+  el.onclick=e=>{if(e.target===el) el.remove()};
+  const onKey=e=>{
+    if(!document.getElementById('lightboxModal')){document.removeEventListener('keydown',onKey);return}
+    if(e.key==='Escape'){el.remove()}
+    if(e.key==='ArrowRight'){cur=(cur+1)%arr.length;update()}
+    if(e.key==='ArrowLeft'){cur=(cur-1+arr.length)%arr.length;update()}
+  };
+  document.addEventListener('keydown',onKey);
+};
+
+/* ================= REGULAR APPS ================= */
+function openApp(item){
+  switch(item.id){
+    case 'pesan':
+      openPesanNotepad();break;
+    case 'notepad':
+      openBlankNotepad();break;
+    case 'galerichat':
+      openChatGallery();break;
+    case 'recycle':
+      makeXPWindow('recycle','Recycle Bin',`
+        <div style="padding:16px;text-align:center;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <span style="font-size:48px">🗑️</span>
+          <p style="margin-top:8px;color:#888">Recycle Bin is empty</p>
+          <p style="font-size:11px;color:#aaa;margin-top:4px">(Cinta kita nggak akan masuk sini 💗)</p>
+        </div>`,{icon:'🗑️',width:340,menubar:'<span>File</span><span>Edit</span><span>View</span>'});
+      break;
+    case 'mypc':
+      makeXPWindow('mypc','My Computer',`
+        <div style="padding:16px">
+          <p style="font-weight:bold;margin-bottom:12px">Hard Disk Drives</p>
+          <div style="display:flex;gap:16px;flex-wrap:wrap">
+            <div style="text-align:center;padding:8px;border-radius:4px;cursor:pointer" onmouseover="this.style.background='#e0e8f6'" onmouseout="this.style.background='transparent'">
+              <span style="font-size:36px">💽</span>
+              <p style="font-size:11px">Local Disk (C:)</p>
+              <div style="width:80px;height:8px;background:#ddd;border-radius:4px;overflow:hidden"><div style="width:85%;height:100%;background:linear-gradient(90deg,#3b87e0,#ff4444)"></div></div>
+              <p style="font-size:10px;color:#888">85% penuh cinta</p>
+            </div>
+            <div style="text-align:center;padding:8px;border-radius:4px;cursor:pointer" onmouseover="this.style.background='#e0e8f6'" onmouseout="this.style.background='transparent'">
+              <span style="font-size:36px">💿</span>
+              <p style="font-size:11px">DVD Drive (D:)</p>
+            </div>
+          </div>
+          <hr style="margin:12px 0;border:none;border-top:1px solid #ddd">
+          <p style="font-weight:bold;margin-bottom:8px">System Information</p>
+          <p style="font-size:11px;color:#555">OS: Yori OS (Build ${CONFIG.namaKamu}.💗)</p>
+          <p style="font-size:11px;color:#555">Processor: Love Core i9 @ ${CONFIG.monthsary} months</p>
+          <p style="font-size:11px;color:#555">RAM: ∞ GB (penuh kenangan)</p>
+          <p style="font-size:11px;color:#555">Status: Deeply in love ❤️</p>
+        </div>`,{icon:'🖥️',width:420,menubar:'<span>File</span><span>Edit</span><span>View</span><span>Favorites</span><span>Tools</span><span>Help</span>'});
+      break;
+    case 'ie':
+      makeXPWindow('ie','Internet Explorer - Cinta Tanpa Batas',`
+        <div>
+          <div style="background:#f0f0f0;padding:4px 8px;display:flex;align-items:center;gap:4px;border-bottom:1px solid #ccc">
+            <span style="font-size:11px;color:#888">Address</span>
+            <div style="flex:1;background:#fff;border:1px solid #7f9db9;padding:2px 6px;font-size:11px;border-radius:2px;overflow:hidden">https://www.aku-sayang-kamu.com/${CONFIG.namaDia.toLowerCase()}</div>
+          </div>
+          <div style="padding:20px;text-align:center;min-height:250px;background:linear-gradient(135deg,#fff5f5,#f0f0ff)">
+            <p style="font-size:24px;margin-bottom:8px">🌐💗</p>
+            <h2 style="color:#333;margin-bottom:8px">Selamat Datang di Website Cinta Kita</h2>
+            <p style="color:#666;font-size:12px;margin-bottom:16px">Established: 8 Januari 2026</p>
+            <div style="background:#fff;padding:16px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);max-width:300px;margin:0 auto">
+              <p style="font-size:14px;color:#333;font-weight:bold">Status Hubungan:</p>
+              <p style="font-size:20px;color:#e91e63;font-weight:bold">💗 Bahagia Bersama 💗</p>
+              <p style="font-size:11px;color:#888;margin-top:8px">Sudah ${CONFIG.monthsary} bulan dan terus bertambah...</p>
+            </div>
+          </div>
+        </div>`,{icon:'🌍',width:500,menubar:'<span>File</span><span>Edit</span><span>View</span><span>Favorites</span><span>Tools</span><span>Help</span>',statusbar:'✓ Done'});
+      break;
+    case 'paint':
+      makeXPWindow('paint','untitled - Paint',`
+        <div style="padding:16px;text-align:center;min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff">
+          <canvas id="paintCanvas" width="350" height="200" style="border:1px solid #ccc;cursor:crosshair;touch-action:none;max-width:100%"></canvas>
+          <p style="font-size:11px;color:#888;margin-top:8px">🎨 Gambar sesuatu untuk ${CONFIG.namaDia}! (klik &amp; drag)</p>
+          <div style="display:flex;gap:4px;margin-top:8px">
+            ${['#ff0000','#ff69b4','#0000ff','#00ff00','#000000','#ffffff'].map(c=>`<div onclick="setPaintColor('${c}')" style="width:20px;height:20px;background:${c};cursor:pointer;border:1px solid #888"></div>`).join('')}
+          </div>
+        </div>`,{icon:'🎨',width:420,menubar:'<span>File</span><span>Edit</span><span>View</span><span>Image</span><span>Colors</span><span>Help</span>'});
+      initPaint();
+      break;
+    case 'mediaplr':
+      makeXPWindow('mediaplr','Windows Media Player',`
+        <div style="background:#1a1a2e;padding:20px;text-align:center;min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:36px;animation:skull-pulse 2s infinite">🎵</div>
+          <p style="color:#fff;margin-top:12px;font-weight:bold">Now Playing:</p>
+          <p style="color:#aaa;font-size:13px">"Soundtrack Cinta Kita"</p>
+          <p style="color:#667eea;font-size:11px;margin-top:4px">by ${CONFIG.namaKamu} ft. ${CONFIG.namaDia}</p>
+          <div style="width:80%;height:4px;background:#333;border-radius:2px;margin:16px 0;overflow:hidden">
+            <div style="width:45%;height:100%;background:linear-gradient(90deg,#667eea,#764ba2);animation:progress-glow 2s infinite"></div>
+          </div>
+          <div style="display:flex;gap:16px;color:#fff;font-size:18px">
+            <span style="cursor:pointer">⏮</span><span style="cursor:pointer;font-size:24px">▶️</span><span style="cursor:pointer">⏭</span>
+          </div>
+        </div>`,{icon:'🎬',width:380});
+      break;
+    case 'messenger':
+      makeXPWindow('messenger','MSN Messenger',`
+        <div style="background:linear-gradient(180deg,#4b7bec,#3867d6);padding:16px;min-height:320px">
+          <div style="text-align:center;margin-bottom:12px">
+            <span style="font-size:36px">💬</span>
+            <p style="color:#fff;font-weight:bold;font-size:14px;margin-top:2px">MSN Messenger — Yori &amp; Hiyori</p>
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:12px;max-height:260px;overflow-y:auto">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #eee">
+              <span style="font-size:24px">😈</span>
+              <div>
+                <p style="font-weight:bold;font-size:12px">${CONFIG.namaKamu} (Yori)</p>
+                <p style="font-size:10px;color:green">● Online (bawel &amp; kangenan)</p>
+              </div>
+            </div>
+            <div style="background:#e8f4fd;padding:8px;border-radius:4px;margin-bottom:6px"><p style="font-size:11px;color:#333"><b>Yori:</b> Hiyoriiii... piiiing! 🔔 Aku kangen bangeeet 🥺</p></div>
+            <div style="background:#dcf8c6;padding:8px;border-radius:4px;margin-bottom:6px;text-align:right"><p style="font-size:11px;color:#333"><b>Hiyori:</b> Baru ditinggal bentar udah bawel aja... dasar nyebelin 🙄💗</p></div>
+            <div style="background:#e8f4fd;padding:8px;border-radius:4px;margin-bottom:6px"><p style="font-size:11px;color:#333"><b>Yori:</b> Emang nyebelin, tapi tetep paling sayang sama Hiyori 😜</p></div>
+            <div style="background:#dcf8c6;padding:8px;border-radius:4px;margin-bottom:6px;text-align:right"><p style="font-size:11px;color:#333"><b>Hiyori:</b> Untung aku penyabar ya... tapi awas kalau aku didiemin! 😤💕</p></div>
+            <div style="background:#e8f4fd;padding:8px;border-radius:4px;margin-bottom:6px"><p style="font-size:11px;color:#333"><b>Yori:</b> Nggak akan didiemin kok, aku kan lebih milih dimarahin &amp; direwelin Hiyori daripada didiemin 🥺💗</p></div>
+            <div style="background:#dcf8c6;padding:8px;border-radius:4px;text-align:right"><p style="font-size:11px;color:#333"><b>Hiyori:</b> Hihi Yori sayang, love you! Happy ${CONFIG.monthsary} monthsary ya! 🥰</p></div>
+          </div>
+        </div>`,{icon:'💬',width:380});
+      break;
+  }
+}
+
+/* ================= PAINT ================= */
+let paintColor='#ff69b4';
+window.setPaintColor=function(c){paintColor=c};
+function initPaint(){
+  setTimeout(()=>{
+    const canvas=document.getElementById('paintCanvas');
+    if(!canvas)return;
+    const ctx=canvas.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.lineWidth=3;ctx.lineCap='round';
+    let drawing=false;
+    const getPos=e=>{
+      const r=canvas.getBoundingClientRect();
+      return[(e.clientX-r.left)*(canvas.width/r.width),(e.clientY-r.top)*(canvas.height/r.height)];
+    };
+    canvas.addEventListener('pointerdown',e=>{drawing=true;const[x,y]=getPos(e);ctx.beginPath();ctx.moveTo(x,y)});
+    canvas.addEventListener('pointermove',e=>{
+      if(!drawing)return;
+      ctx.strokeStyle=paintColor;
+      const[x,y]=getPos(e);ctx.lineTo(x,y);ctx.stroke();
+    });
+    canvas.addEventListener('pointerup',()=>drawing=false);
+    canvas.addEventListener('pointerleave',()=>drawing=false);
+  },100);
+}
+
+/* ================= START MENU APPS ================= */
+function openFromMenu(fn){
+  $('#startMenu').style.display='none';
+  if(!allChallengesSolved()){
+    showXPError('Access Denied','🔒 Folder terkunci! Selesaikan semua tantangan dulu.');
+    return;
+  }
+  fn();
+}
+
+function showAbout(){
+  $('#startMenu').style.display='none';
+  if(!allChallengesSolved()){
+    showXPError('Access Denied','🔒 Folder terkunci! Selesaikan semua tantangan dulu.');
+    return;
+  }
+  makeXPWindow('mydocs','My Documents',`
+    <div style="padding:16px">
+      <p style="font-weight:bold;margin-bottom:12px">📁 My Documents</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px">
+        <div style="text-align:center;width:80px;cursor:pointer" onclick="openPesanNotepad()"><span style="font-size:32px">💌</span><p style="font-size:10px">pesan.txt</p></div>
+        <div style="text-align:center;width:80px;cursor:pointer" onclick="openSecretPhotoGallery()"><span style="font-size:32px">📸</span><p style="font-size:10px">Foto_Rahasia</p></div>
+        <div style="text-align:center;width:80px;cursor:pointer" onclick="openChatGallery()"><span style="font-size:32px">💬</span><p style="font-size:10px">Galeri_Chat</p></div>
+        <div style="text-align:center;width:80px"><span style="font-size:32px">🎵</span><p style="font-size:10px">our_song.mp3</p></div>
+      </div>
+    </div>`,{icon:'📁',width:380,menubar:'<span>File</span><span>Edit</span><span>View</span>'});
+}
+
+function showControlPanel(){
+  $('#startMenu').style.display='none';
+  const old=document.getElementById('xpwin-ctrlpanel');
+  if(old){old.remove();const t=document.getElementById('task-ctrlpanel');if(t)t.remove()}
+  makeXPWindow('ctrlpanel','Control Panel',`
+    <div style="padding:16px">
+      <p style="font-weight:bold;margin-bottom:12px">⚙️ Control Panel</p>
+      <div style="background:#f5f0e0;border:1px solid #d4c9a8;padding:12px;border-radius:4px;margin-bottom:12px">
+        <p style="font-size:12px;font-weight:bold;color:#333">System Status</p>
+        <p style="font-size:11px;color:#555">Challenges Solved: ${solved.size}/${TOTAL_CHALLENGES}</p>
+        <div style="width:100%;height:12px;background:#ddd;border-radius:6px;overflow:hidden;margin:4px 0">
+          <div style="width:${(solved.size/TOTAL_CHALLENGES)*100}%;height:100%;background:linear-gradient(90deg,#3b87e0,#22c55e)"></div>
+        </div>
+        <p style="font-size:11px;color:#555">Love Level: ${allChallengesSolved()?'💗💗💗💗💗 MAX':'💗'.repeat(solved.size)+'🖤'.repeat(TOTAL_CHALLENGES-solved.size)}</p>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <div style="text-align:center;width:70px;padding:4px"><span style="font-size:28px">🖥️</span><p style="font-size:10px">Display</p></div>
+        <div style="text-align:center;width:70px;padding:4px"><span style="font-size:28px">🔊</span><p style="font-size:10px">Sounds</p></div>
+        <div style="text-align:center;width:70px;padding:4px"><span style="font-size:28px">🌐</span><p style="font-size:10px">Network</p></div>
+        <div style="text-align:center;width:70px;padding:4px"><span style="font-size:28px">👤</span><p style="font-size:10px">Users</p></div>
+      </div>
+    </div>`,{icon:'⚙️',width:380,menubar:'<span>File</span><span>Edit</span><span>View</span>'});
+}
+
+function showCMD(){
+  $('#startMenu').style.display='none';
+  makeXPWindow('cmd','Command Prompt',`
+    <div style="background:#000;color:#ccc;font-family:'Courier New',monospace;font-size:13px;padding:8px;min-height:200px">
+      <p>Microsoft Windows XP [Version 5.1.2600]</p>
+      <p>(C) Copyright 1985-2026 Yori Corp.</p>
+      <br>
+      <p>C:\\Users\\${CONFIG.namaDia}&gt; echo I love ${CONFIG.namaKamu}</p>
+      <p style="color:var(--green)">I love ${CONFIG.namaKamu} 💗</p>
+      <br>
+      <p>C:\\Users\\${CONFIG.namaDia}&gt; _</p>
+    </div>`,{icon:'💻',width:500});
+}
+
+function showHelp(){
+  $('#startMenu').style.display='none';
+  const old=document.getElementById('xpwin-help');
+  if(old){old.remove();const t=document.getElementById('task-help');if(t)t.remove()}
+  const row=(id,label)=>`<li ${solved.has(id)?'style="color:green"':''}>${solved.has(id)?'✅':'⬜'} ${label}</li>`;
+  makeXPWindow('help','Help and Support Center',`
+    <div style="padding:16px;background:linear-gradient(180deg,#fff 0%,#f0f4ff 100%);min-height:250px">
+      <h3 style="color:#003399;margin-bottom:12px;font-size:16px">🆘 Help and Support Center</h3>
+      <div style="background:#fff;border:1px solid #ccc;padding:12px;border-radius:4px;margin-bottom:12px">
+        <p style="font-weight:bold;font-size:13px;margin-bottom:8px">Cara Membebaskan Sistem:</p>
+        <ol style="font-size:12px;color:#333;padding-left:20px;line-height:1.8">
+          ${row('clue1','Buka dan selesaikan <b>Clue_#1.enc</b> (Decrypt challenge)')}
+          ${row('clue2','Buka dan selesaikan <b>Secret_Msg.bin</b> (Binary decode)')}
+          ${row('folder','Buka dan selesaikan <b>Foto_Rahasia</b> (Memory game)')}
+          ${row('terminal','Buka dan selesaikan <b>Terminal.exe</b> (Hack terminal)')}
+          ${row('network','Buka dan selesaikan <b>Network_Hack.sys</b> (Wire connect)')}
+          <li>Setelah semua selesai, jalankan <b>Quiz_Final.exe</b></li>
+        </ol>
+      </div>
+      <p style="font-size:11px;color:#888;text-align:center">Dibuat dengan 💗 oleh ${CONFIG.namaKamu}</p>
+    </div>`,{icon:'❓',width:440});
+}
+
+/* ================= BSOD ================= */
+function triggerBSOD(){
+  $('#startMenu').style.display='none';
+  const bsod=$('#bsod');
+  bsod.style.display='block';
+  $('#bsodText').textContent=`
+  A problem has been detected and Windows has been shut down to prevent
+  damage to your computer.
+
+  LOVE_OVERFLOW_ERROR
+
+  If this is the first time you've seen this Stop error screen,
+  restart your computer. If this screen appears again, follow
+  these steps:
+
+  Check to make sure you're not loving ${CONFIG.namaDia} too much.
+  Oh wait, that's impossible. 💗
+
+  Technical information:
+
+  *** STOP: 0x0000008E (0xC0000005, ${CONFIG.namaKamu.toUpperCase()}_LOVES_${CONFIG.namaDia.toUpperCase()})
+
+  *** love.sys - Address 0xHEART at base 0xFOREVER
+
+  Beginning dump of love data...
+  Physical memory dump complete.
+  Contact your ${CONFIG.namaKamu} for further assistance. 💗
+  `;
+  setTimeout(()=>{bsod.style.display='none'},5000);
+}
+
+/* ================= QUIZ FINAL ================= */
+let qi=0;
+function startQuiz(){
+  qi=0;
+  const old=document.getElementById('xpwin-quizfinal');
+  if(old){old.remove();const t=document.getElementById('task-quizfinal');if(t)t.remove()}
+  makeXPWindow('quizfinal','⚡ Quiz_Final.exe — SYSTEM RECOVERY',`<div id="quizBody" class="challenge-container" style="padding:0"></div>`,{width:440,icon:'💾',bodyStyle:'padding:0'});
+  renderQ();
+}
+
+function renderQ(){
+  const body=document.getElementById('quizBody');
+  if(!body)return;
+  if(qi>=QUIZ.length)return finishAll(body);
+  const q=QUIZ[qi],pct=Math.round(qi/QUIZ.length*100);
+  body.innerHTML=`
+    <div style="background:#0a0a0a;color:var(--green);font-family:'VT323',monospace;padding:16px">
+      <p style="color:var(--amber);font-size:14px;margin-bottom:4px">SYSTEM RECOVERY: ${pct}%</p>
+      <div class="hack-progress"><div class="hack-progress-fill" style="width:${pct}%"></div></div>
+      <p style="font-size:20px;margin:16px 0 12px;color:#fff;font-family:'Tahoma',sans-serif;font-weight:bold">${qi+1}/${QUIZ.length}. ${q.q}</p>
+      <div id="quizOpts" style="display:flex;flex-direction:column;gap:8px">
+        ${q.a.map((a,i)=>`<button onclick="answerQuiz(this,${i})" style="background:#111;border:2px solid #333;color:var(--green);padding:10px;font-family:'VT323',monospace;font-size:18px;cursor:pointer;text-align:left;transition:all .2s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='#333'">${a}</button>`).join('')}
+      </div>
+      <p id="quizFb" style="margin-top:12px;min-height:40px;font-size:16px;color:var(--amber)"></p>
+    </div>`;
+}
+
+window.answerQuiz=async function(btn,idx){
+  document.querySelectorAll('#quizOpts button').forEach(o=>{o.disabled=true;o.style.opacity='.5'});
+  btn.style.opacity='1';
+  btn.style.borderColor='var(--green)';
+  btn.style.background='#002200';
+  const fb=document.getElementById('quizFb');
+  if(fb) fb.textContent=QUIZ[qi].r[idx];
+  await sleep(1800);
+  if(!document.getElementById('quizBody'))return; // jendela ditutup
+  qi++;
+  renderQ();
+};
+
+function finishAll(body){
+  body.innerHTML=`
+    <div style="text-align:center;padding:24px;background:linear-gradient(135deg,#0a0a0a,#1a0a2a)">
+      <p style="font-size:40px;margin-bottom:8px">✅</p>
+      <p style="font-family:'VT323',monospace;font-size:24px;color:var(--green)" class="glow-green">SYSTEM FULLY RESTORED!</p>
+      <p style="font-family:'VT323',monospace;font-size:14px;color:var(--amber);margin:4px 0 20px">Hacker ${CONFIG.namaKamu} menyerah dan menyerahkan hatinya.</p>
+      <div style="background:linear-gradient(135deg,rgba(255,75,135,.15),rgba(108,76,255,.15));border:2px solid rgba(255,75,135,.3);border-radius:12px;padding:24px;text-align:left;margin:0 auto;max-width:380px">
+        <p style="font-weight:bold;font-size:18px;color:#ff4b87;margin-bottom:12px;text-align:center;font-family:'Tahoma',sans-serif">Happy ${CONFIG.monthsary}th Monthsary, ${CONFIG.namaDia} 💗</p>
+        <p style="font-size:14px;color:#e0d0f0;line-height:1.8;font-family:'Tahoma',sans-serif;white-space:pre-line">Selamat ${CONFIG.monthsary} bulan, sayangku. 💗
+
+${CONFIG.monthsary} bulan ini aku belajar kalau bahagia itu sederhana: cukup ada kamu — entah lagi ketawa, ngambek, atau lagi laper dan galak.
+
+Terima kasih sudah sabar sama aku, sudah bertahan, dan tetap memilih aku setiap hari.
+
+Semoga bulan-bulan berikutnya makin hangat dan makin banyak tawa.
+
+Aku sayang kamu, hari ini dan seterusnya. 💗</p>
+        <p style="text-align:right;color:#ff4b87;font-weight:bold;margin-top:16px;font-family:'Tahoma',sans-serif">— ${CONFIG.namaKamu} 💗</p>
+      </div>
+    </div>`;
+  launchHearts();
+  launchConfetti();
+  setTimeout(()=>{
+    const wp=document.querySelector('.xp-wallpaper');
+    wp.style.transition='box-shadow 2s';
+    wp.style.boxShadow='inset 0 0 0 100vmax rgba(255,117,140,.25)';
+  },1000);
+}
+
+function launchHearts(){
+  for(let i=0;i<50;i++){
+    setTimeout(()=>{
+      const h=document.createElement('div');
+      h.className='heart';
+      h.textContent=['💗','💖','💕','🤍','💝','🌸'][i%6];
+      h.style.left=Math.random()*100+'vw';
+      h.style.fontSize=(18+Math.random()*30)+'px';
+      h.style.animationDuration=(4+Math.random()*5)+'s';
+      document.body.appendChild(h);
+      setTimeout(()=>h.remove(),10000);
+    },i*100);
+  }
+}
+
+function launchConfetti(){
+  const colors=['#ff4b87','#ffd700','#39ff14','#4b87ff','#ff6b81','#a18cd1','#fbc2eb'];
+  for(let i=0;i<80;i++){
+    setTimeout(()=>{
+      const c=document.createElement('div');
+      c.className='confetti';
+      c.style.left=Math.random()*100+'vw';
+      c.style.width=(6+Math.random()*8)+'px';
+      c.style.height=(6+Math.random()*8)+'px';
+      c.style.background=pick(colors);
+      c.style.borderRadius=Math.random()>.5?'50%':'0';
+      c.style.animationDuration=(2+Math.random()*4)+'s';
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),8000);
+    },i*60);
+  }
+}
+
+/* ================= BINARY BG ================= */
+function fillBinaryBg(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  let str='';
+  for(let i=0;i<2000;i++) str+=Math.random()>.5?'1':'0';
+  el.textContent=str;
+}
+
+/* ================= CLOCK ================= */
+function tick(){
+  const el=document.getElementById('trayTime');
+  if(el) el.textContent=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+}
+tick();setInterval(tick,10000);
+
+/* ================= START MENU ================= */
+$('#startBtn').onclick=()=>{
+  const m=$('#startMenu');
+  m.style.display=m.style.display==='block'?'none':'block';
+  $('#startLeft').innerHTML=`
+    <div class="start-item" style="padding:6px 8px;margin-bottom:4px;pointer-events:none">
+      <span style="font-size:11px;color:#888;font-weight:bold">📌 Pinned Programs</span>
+    </div>
+    ${DESKTOP_ITEMS.map((item,i)=>({item,i})).filter(({item})=>item.type==='challenge'||item.type==='exe').map(({item,i})=>`
+      <div class="start-item ${item.type==='exe'&&!allChallengesSolved()?'locked':''}" onclick="openDesktopItem(DESKTOP_ITEMS[${i}])">
+        <span class="si-icon">${item.icon}</span>
+        <span>${item.name} ${solved.has(item.id)?'✅':item.type==='challenge'?'🔒':''}</span>
+      </div>`).join('')}
+    <hr class="start-separator">
+    <div class="start-item" style="padding:6px 8px;pointer-events:none">
+      <span style="font-size:11px;color:#888">Progress: ${solved.size}/${TOTAL_CHALLENGES} challenges</span>
+    </div>`;
+};
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#startMenu')&&!e.target.closest('#startBtn')) $('#startMenu').style.display='none';
+  if(!e.target.closest('.xp-icon')) $$('.xp-icon').forEach(i=>i.classList.remove('selected'));
+});
+</script>
+</body>
+</html>
